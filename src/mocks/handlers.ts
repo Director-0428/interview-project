@@ -142,14 +142,14 @@ export const handlers = [
     let data: {
       message: string
       code: number,
-      random: number
+      random?: number
     }
     if (random < 100) {
       data = {
         message: '成功',
         code: 1000,
       }
-    } else if( random > 100 && random < 900) {
+    } else if (random > 100 && random < 900) {
       data = {
         message: '未知',
         code: -1000,
