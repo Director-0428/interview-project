@@ -33,7 +33,9 @@
       layout="total, prev, pager, next, sizes"
       :total="total"
       @current-change="pageChange"
-      :page-sizes="[10, 20, 30, 40]"
+      @size-change="pageSizeChange"
+      :default-page-size="4"
+      :page-sizes="[4, 20, 30, 40]"
     />
   </div>
   <el-dialog v-model="dialogVisible" :title="dialogTitle" width="30%">
@@ -60,7 +62,7 @@ import { getPosts, addPost, updatePost, deletePost } from "@/api/post";
 import { dayjs, ElMessage } from "element-plus";
 
 let page = ref<number>(1);
-let pageSize = ref<number>(10);
+let pageSize = ref<number>(4);
 let total = ref<number>(0);
 let tableData = reactive<PostInterface.ListItem[]>([]);
 
@@ -105,8 +107,7 @@ const delDataitem = (data: PostInterface.ListItem) => {
     id: data.id,
   };
   deletePost(params).then((res) => {
-    let { data } = res;
-    if (data.success) {
+    if (res.success) {
       getDataListFunc();
       ElMessage({
         message: "操作成功",
@@ -124,8 +125,7 @@ const saveDataItem = () => {
   if (params.id) {
     // 更新数据
     updatePost(params).then((res) => {
-      let { data } = res;
-      if (data.success) {
+      if (res.success) {
         getDataListFunc();
         ElMessage({
           message: "操作成功",
@@ -137,8 +137,7 @@ const saveDataItem = () => {
   } else {
     // 新增数据
     addPost(params).then((res) => {
-      let { data } = res;
-      if (data.success) {
+      if (res.success) {
         getDataListFunc();
         ElMessage({
           message: "操作成功",
@@ -155,6 +154,12 @@ const pageChange = () => {
   getDataListFunc();
 };
 
+// 每页显示数量变化
+const pageSizeChange = () => {
+  page.value = 1;
+  getDataListFunc();
+};
+
 // 获取数据列表
 const getDataListFunc = () => {
   let params: PostInterface.ListRequest = {
@@ -162,12 +167,11 @@ const getDataListFunc = () => {
     pageSize: pageSize.value,
   };
   getPosts(params).then((res) => {
-    let { data } = res;
-    if (data.success) {
-      total.value = data.data.total;
+    if (res.success) {
+      total.value = res.data.total;
 
       tableData.length = 0;
-      tableData.push(...data.data.list);
+      tableData.push(...res.data.list);
     }
   });
 };
